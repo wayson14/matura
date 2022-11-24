@@ -1,0 +1,48 @@
+55 minut
+1 - (SELECT klienci.imie,
+klienci.Nazwisko,
+samochody.Nr_rej,
+DATEDIFF(wypozyczenia.Zwrot, wypozyczenia.Wypozyczenie) as `czas wypozyczenia`, ceny_za_dobe.Cena*DATEDIFF(wypozyczenia.Zwrot, wypozyczenia.Wypozyczenie) as naleznosc 
+FROM 
+klienci INNER JOIN wypozyczenia ON klienci.Nr_klienta = wypozyczenia.Nr_klienta
+INNER JOIN samochody ON wypozyczenia.Nr_ew = samochody.Nr_ew
+INNER JOIN ceny_za_dobe ON SUBSTRING(samochody.Nr_firmowy, 1, 1) = ceny_za_dobe.Klasa
+ORDER BY klienci.Nazwisko ASC, klienci.Imie ASC, samochody.Nr_rej ASC 
+LIMIT 1)
+UNION ALL 
+(SELECT klienci.imie,
+klienci.Nazwisko,
+samochody.Nr_rej,
+DATEDIFF(wypozyczenia.Zwrot, wypozyczenia.Wypozyczenie) as `czas wypozyczenia`, ceny_za_dobe.Cena*DATEDIFF(wypozyczenia.Zwrot, wypozyczenia.Wypozyczenie) as naleznosc 
+FROM 
+klienci INNER JOIN wypozyczenia ON klienci.Nr_klienta = wypozyczenia.Nr_klienta
+INNER JOIN samochody ON wypozyczenia.Nr_ew = samochody.Nr_ew
+INNER JOIN ceny_za_dobe ON SUBSTRING(samochody.Nr_firmowy, 1, 1) = ceny_za_dobe.Klasa
+ORDER BY klienci.Nazwisko DESC, klienci.Imie DESC, samochody.Nr_rej DESC
+LIMIT 1);
+
+2 - SELECT SUBSTRING(samochody.Nr_firmowy, 1, 1) as klasa, COUNT(wypozyczenia.Nr_ew) 
+FROM 
+samochody INNER JOIN wypozyczenia ON samochody.Nr_ew = wypozyczenia.Nr_ew
+GROUP BY klasa
+HAVING klasa != 'N';
+
+3 - SELECT klienci.imie, klienci.Nazwisko, COUNT(wypozyczenia.Nr_ew) as liczba
+FROM klienci INNER JOIN wypozyczenia ON klienci.Nr_klienta = wypozyczenia.Nr_klienta
+GROUP BY klienci.Nr_klienta
+ORDER BY liczba DESC
+LIMIT 1;
+
+4a - SELECT SUBSTRING(samochody.Nr_firmowy, 1, 1) as klasa,  COUNT(samochody.Nr_ew) 
+FROM samochody LEFT JOIN wypozyczenia ON samochody.Nr_ew = wypozyczenia.Nr_ew
+WHERE wypozyczenia.Nr_klienta IS NULL
+GROUP BY klasa;
+
+4b -  SELECT samochody.Miejscowosc as miejscowosc,  COUNT(samochody.Nr_ew) 
+FROM samochody LEFT JOIN wypozyczenia ON samochody.Nr_ew = wypozyczenia.Nr_ew
+WHERE wypozyczenia.Nr_klienta IS NULL
+GROUP BY miejscowosc;
+
+5 - SELECT COUNT(klienci.Nr_klienta) 
+FROM klienci LEFT JOIN wypozyczenia ON klienci.Nr_klienta = wypozyczenia.Nr_klienta
+WHERE wypozyczenia.Nr_klienta IS NULL;
